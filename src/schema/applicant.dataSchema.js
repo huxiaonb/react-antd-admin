@@ -31,7 +31,6 @@ module.exports = [
     key: 'wechatOpenId',
     title: '微信ID',
     showInTable: false,
-    disabled: true,
     dataType: 'varchar',
     showType: 'normal',
   },

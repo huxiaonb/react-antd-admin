@@ -547,22 +547,23 @@ class InnerTable extends React.PureComponent {
     const hide = message.loading('正在新增...', 0);
     try {
       const res = await CRUD.insert(obj);
+      
       hide();
       if (res) {
         notification.success({
           message: '新增成功',
-          description: this.primaryKey ? `新增数据行 主键=${res.data[this.primaryKey]}` : '',
+          description: this.primaryKey ? `新增数据行 主键=${res.body[this.primaryKey]}` : '',
           duration: 3,
         });
 
         // 数据变化后, 刷新下表格, 我之前是变化后刷新整个页面的, 想想还是只刷新表格比较好
         // 新增的数据放到第一行
         const newData = [];
-        const transformedData = this.transformRawDataToTable(res.data);
+        const transformedData = this.transformRawDataToTable(res.body);
         // 表格中的每条记录都必须有个唯一的key, 否则会有warn, 如果有主键就用主键, 否则只能随便给个
         // 如果key有重复的, 会有warn, 显示也会有问题, 所以后端接口要注意下, 如果DB主键都能重复, 也只能呵呵了...
         if (this.primaryKey) {
-          transformedData.key = res.data[this.primaryKey];
+          transformedData.key = res.body[this.primaryKey];
         } else {
           transformedData.key = Math.floor(Math.random() * 233333);  // MAGIC NUMBER
         }
