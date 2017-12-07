@@ -124,7 +124,7 @@ class InnerTable extends React.PureComponent {
     // 否则直接用个自增数字做key
     const newData = [];
     let i = 0;
-    props.data.forEach((obj) => {
+    (props.data.body && props.data.body.length) ? props.data.body.forEach((obj) => {
       const newObj = this.transformRawDataToTable(obj);
       if (this.primaryKey) {
         newObj.key = obj[this.primaryKey];
@@ -133,7 +133,7 @@ class InnerTable extends React.PureComponent {
         i++;
       }
       newData.push(newObj);
-    });
+    }) : '';
 
     // 在这里, 下面两种写法是等效的, 因为parseTableData方法只会被componentWillReceiveProps调用, 而componentWillReceiveProps的下一步就是判断是否re-render
     // 但要注意, 不是任何情况下都等效
