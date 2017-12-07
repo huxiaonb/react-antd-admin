@@ -148,9 +148,9 @@ class InnerTable extends React.PureComponent {
    */
   transformRawDataToTable(obj) {
     const newObj = {};
-
     // 这段代码真是好蛋疼...
     for (const key in obj) {
+      if(!key || !this.fieldMap.get(key)) continue;
       if (this.fieldMap.get(key).$$optionMap) {
         const optionMap = this.fieldMap.get(key).$$optionMap;
         if (obj[key] instanceof Array) {
@@ -177,10 +177,9 @@ class InnerTable extends React.PureComponent {
    */
   transformRawDataToForm(obj) {
     const newObj = {};
-
     for (const key in obj) {
       // rawData中可能有些undefined或null的字段, 过滤掉
-      if (!obj[key])
+      if (!obj[key] || !this.fieldMap.get(key))
         continue;
 
       if (this.fieldMap.get(key).dataType === 'datetime') {  // 判断是否是日期类型的字段
@@ -549,7 +548,7 @@ class InnerTable extends React.PureComponent {
     try {
       const res = await CRUD.insert(obj);
       hide();
-      if (res.success) {
+      if (res) {
         notification.success({
           message: '新增成功',
           description: this.primaryKey ? `新增数据行 主键=${res.data[this.primaryKey]}` : '',
@@ -593,10 +592,10 @@ class InnerTable extends React.PureComponent {
     try {
       const res = await CRUD.update(keys, obj);
       hide();
-      if (res.success) {
+      if (res) {
         notification.success({
           message: '更新成功',
-          description: `更新${res.data}条数据`,
+          description: `更新了数据`,
           duration: 3,
         });
 
@@ -631,13 +630,14 @@ class InnerTable extends React.PureComponent {
   async handleDelete(keys = this.state.selectedRowKeys) {
     const CRUD = ajax.CRUD(this.props.tableName);
     const hide = message.loading('正在删除...', 0);
+    
     try {
       const res = await CRUD.delete(keys);
       hide();
-      if (res.success) {
+      if (res) {
         notification.success({
           message: '删除成功',
-          description: `删除${res.data}条数据`,
+          description: `删除了数据`,
           duration: 3,
         });
 
@@ -676,7 +676,6 @@ class InnerTable extends React.PureComponent {
     const multiSelected = this.state.selectedRowKeys.length > 1;  // 是否选择了多项
 
     const UpdateComponent = this.updateComponent;
-
     return (
       <div>
         <div className="db-table-button">

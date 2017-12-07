@@ -9,11 +9,11 @@
 // 遵循统一的规范, 好维护, 交给其他人也比较简单
 
 module.exports = {
-  name: 'OOXX管理后台',  // 项目的名字
+  name: '管理后台',  // 项目的名字
   favicon: 'http://jxy.me/favicon.ico',  // 设置网页的favicon, 可以是外链, 也可以是本地
   footer: '<a target="_blank" href="http://jxy.me">foolbear</a>版权所有 © 2015-2099',  // footer中显示的字, 可以嵌入html标签
 
-  debug: true,  // 是否开启debug模式, 不会请求后端接口, 使用mock的数据
+  debug: false,  // 是否开启debug模式, 不会请求后端接口, 使用mock的数据
 
   tabMode: {  // tab模式相关配置
     enable: false,  // 是否开启tab模式
@@ -30,22 +30,22 @@ module.exports = {
   },
 
   api: {  // 对后端请求的相关配置
-    host: 'http://localhost:12345',  // 调用ajax接口的地址, 默认值空, 如果是跨域的, 服务端要支持CORS
-    path: '/api',  // ajax请求的路径
+    host: 'http://localhost:3000',  // 调用ajax接口的地址, 默认值空, 如果是跨域的, 服务端要支持CORS
+    path: '/api/v1',  // ajax请求的路径
     timeout: 15000,  // 请求的超时时间, 单位毫秒
   },
 
   login: {  // 登录相关配置
-    getCurrentUser: '/getCurrentUser',  // 后端必须要提供接口校验当前用户的身份, 如果拿不到用户信息, 才会尝试登录
+    getCurrentUser: '/admin/getCurrentUser',  // 后端必须要提供接口校验当前用户的身份, 如果拿不到用户信息, 才会尝试登录
 
     // 登录有两种情况:
 
     // 1. 使用sso登录, 直接跳转就可以了
     sso: '',  // 是否使用单点登录? 是的话我会把地址encode后加到后面, 然后跳转, 如果这个是空字符串, 说明不使用单点登录
     // 2. 不使用sso, 使用我提供的一个登录界面
-    validate: '/login',  // 校验用户信息, 表单的submit地址. 如果登录成功, 必须返回用户名
+    validate: '/admin/login',  // 校验用户信息, 表单的submit地址. 如果登录成功, 必须返回用户名
 
-    logout: '/logout',  // 退出的url, 用户点击退出时, 浏览器会直接跳转到这个链接
+    logout: '/admin/logout',  // 退出的url, 用户点击退出时, 浏览器会直接跳转到这个链接
   },
 
   upload: {  // 上传相关配置

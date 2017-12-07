@@ -4,6 +4,7 @@ import {Icon, Menu} from 'antd';
 import Logger from '../../utils/Logger';
 import globalConfig from 'config';
 import './index.less';
+import ajax from '../../utils/ajax';
 import {headerMenu} from 'menu';
 
 const SubMenu = Menu.SubMenu;  // 为了使用方便
@@ -30,14 +31,20 @@ class Header extends React.PureComponent {
       </MenuItem>
     );
   }
-
+  async onClickLogout(){
+    sessionStorage['access_token']='';
+    const res = await ajax.logout();
+    if(res.body.success){
+      location.href = '../../'
+    }
+  }
   componentWillMount() {
     const paths = [];
 
     // 这一项菜单是必须有的, 不需要在配置文件里配置
     const logoutMenuItem = <MenuItem key="logout">
       <Icon type="logout"/>
-      <a href={`${globalConfig.getAPIPath()}${globalConfig.login.logout}`}>注销</a>
+      <a href='#' onClick={this.onClickLogout}>注销</a>
     </MenuItem>;
 
     // header右侧必须是用户菜单

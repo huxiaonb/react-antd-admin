@@ -4,6 +4,8 @@ import globalConfig from '../config';
 
 const logger = new Logger('Ajax');
 
+// 模拟统一的延迟, 返回promise对象
+
 /**
  * 封装所有ajax逻辑, 为了配合async/await, 所有ajax请求都要返回promise对象
  */
@@ -58,7 +60,7 @@ class Ajax {
         // 我本来在想, 要不要在这里把错误包装下, 即使请求失败也调用resolve, 这样上层就不用区分"网络请求成功但查询数据失败"和"网络失败"两种情况了
         // 但后来觉得这个ajax方法是很底层的, 在这里包装不合适, 应该让上层业务去包装
         if (res && res.body) {
-          resolve(res.body);
+          resolve(res);
         } else {
           reject(err || res);
         }
@@ -72,19 +74,35 @@ class Ajax {
     return this.requestWrapper('GET', url, {...opts});
   }
 
+  delete(url, opts = {}) {
+    return this.requestWrapper('DELETE', url, {...opts});
+  }
+
   post(url, data, opts = {}) {
     return this.requestWrapper('POST', url, {...opts, data});
   }
 
-  // 业务方法
+  put(url, data, opts = {}) {
+    return this.requestWrapper('PUT', url, {...opts, data});
+  }
 
+
+  // 业务方法
+   /**
+   * 登出
+   *
+   * @returns {*}
+   */
+  logout(){
+    return this.post(`${globalConfig.getAPIPath()}${globalConfig.login.logout}`, {'access-token': sessionStorage.getItem('access_token') || ''});
+  }
   /**
    * 获取当前登录的用户
    *
    * @returns {*}
    */
   getCurrentUser() {
-    return this.get(`${globalConfig.getAPIPath()}${globalConfig.login.getCurrentUser}`);
+    return this.post(`${globalConfig.getAPIPath()}${globalConfig.login.getCurrentUser}`, {'access-token': sessionStorage.getItem('access_token') || ''});
   }
 
   /**
@@ -94,9 +112,32 @@ class Ajax {
    * @param password
    */
   login(username, password) {
+    
     const headers = {'Content-Type': 'application/x-www-form-urlencoded'};
-    return this.post(`${globalConfig.getAPIPath()}${globalConfig.login.validate}`, {username, password}, {headers});
+    return this.post(`${globalConfig.getAPIPath()}${globalConfig.login.validate}`, {account : username, pwd : password}, {headers});
   }
+  // getCurrentUser() {
+  //   return mockPromise(resolve => {
+  //     result.success = true;
+  //     result.data = 'guest';
+  //     resolve(result);
+  //   });
+  // }
+
+  // login(username, password) {
+  //   return mockPromise(resolve => {
+  //     if (username === 'guest' && password === 'guest') {
+  //       result.success = true;
+  //       result.data = 'guest';
+  //       resolve(result);
+  //     } else {
+  //       result.success = false;
+  //       result.code = 100;
+  //       result.message = 'invalid username or password';
+  //       resolve(result);
+  //     }
+  //   });
+  // }
 
   /**
    *  封装CRUD相关操作
@@ -131,7 +172,16 @@ class CRUDUtil {
    * @returns {*}
    */
   select(queryObj) {
-    return this.ajax.post(`${globalConfig.getAPIPath()}/${this.tableName}/select`, queryObj);
+    let q = Object.assign({}, queryObj);
+    if(q.companyName && q.companyName !== ''){
+      q.companyName = '~(' + q.companyName + ')';
+    }
+    if(q.name && q.name !== ''){
+      q.name = '~(' + q.name + ')';
+    }
+    delete q.page;
+    delete q.pageSize;
+    return this.ajax.get(`${globalConfig.getAPIPath()}/${this.tableName}`, {params: {query : JSON.stringify(q)}});
   }
 
   /**
@@ -141,7 +191,7 @@ class CRUDUtil {
    * @returns {*}
    */
   insert(dataObj) {
-    return this.ajax.post(`${globalConfig.getAPIPath()}/${this.tableName}/insert`, dataObj);
+    return this.ajax.post(`${globalConfig.getAPIPath()}/${this.tableName}`, dataObj);
   }
 
   /**
@@ -153,7 +203,7 @@ class CRUDUtil {
    */
   update(keys = [], dataObj) {
     const tmp = keys.join(',');
-    return this.ajax.post(`${globalConfig.getAPIPath()}/${this.tableName}/update`, dataObj, {params: {keys: tmp}});
+    return this.ajax.put(`${globalConfig.getAPIPath()}/${this.tableName}/${tmp}`, dataObj);
   }
 
   /**
@@ -163,8 +213,14 @@ class CRUDUtil {
    * @returns {*}
    */
   delete(keys = []) {
-    const tmp = keys.join(',');
-    return this.ajax.get(`${globalConfig.getAPIPath()}/${this.tableName}/delete`, {params: {keys: tmp}});
+    if(keys.length > 1){
+      keys.map(k=>{
+        return this.ajax.delete(`${globalConfig.getAPIPath()}/${this.tableName}/${k.toString()}`)
+      }) 
+    }else{
+      return this.ajax.delete(`${globalConfig.getAPIPath()}/${this.tableName}/${keys[0].toString()}`);
+    }
+    
   }
 
   /**

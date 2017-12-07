@@ -241,10 +241,10 @@ class DBTable extends React.PureComponent {
 
     const res = await this.select(this.state.queryObj, this.state.currentPage, this.state.pageSize);
     //message.success('查询成功');
-    if (res.success) {
+    if (res) {
       this.setState({
-        data: res.data,
-        total: res.total,
+        data: res,
+        total: res.length,
         tableLoading: false,
       });
     } else {
@@ -309,11 +309,11 @@ class DBTable extends React.PureComponent {
   handlePageChange = async(page) => {
     logger.debug('handlePageChange, page = %d', page);
     const res = await this.select(this.state.queryObj, page, this.state.pageSize);
-    if (res.success) {
+    if (res) {
       this.setState({
         currentPage: page,
-        data: res.data,
-        total: res.total,
+        data: res,
+        total: res.length,
         tableLoading: false,
       });
     } else {
@@ -329,11 +329,11 @@ class DBTable extends React.PureComponent {
   handleShowPageChange = async(page, pageSize) => {
     logger.debug('handleShowPageSizeChange, page = %d', page);
     const res = await this.select(this.state.queryObj, page, pageSize);
-    if (res.success) {
+    if (res) {
       this.setState({
         currentPage: page,
-        data: res.data,
-        total: res.total,
+        data: res,
+        total: res.length,
         tableLoading: false,
         pageSize: pageSize,
       });
@@ -351,11 +351,11 @@ class DBTable extends React.PureComponent {
     logger.debug('handleFormSubmit, queryObj = %o', queryObj);
     // 这时查询条件已经变了, 要从第一页开始查
     const res = await this.select(queryObj, 1, this.state.pageSize);
-    if (res.success) {
+    if (res) {
       this.setState({
         currentPage: 1,
-        data: res.data,
-        total: res.total,
+        data: res,
+        total: res.length,
         tableLoading: false,
         queryObj: queryObj,
       });
@@ -402,11 +402,11 @@ class DBTable extends React.PureComponent {
         <InnerTable data={this.state.data} tableLoading={this.state.tableLoading}
                     schema={this.dataSchema} refresh={this.refresh}
                     tableConfig={this.tableConfig} tableName={this.tableName}/>
-        <InnerPagination currentPage={this.state.currentPage} total={this.state.total} pageSize={this.state.pageSize}
+        {/*<InnerPagination currentPage={this.state.currentPage} total={this.state.total} pageSize={this.state.pageSize}
                          parentHandlePageChange={this.handlePageChange} tableConfig={this.tableConfig}
                          showSizeChanger={this.state.showSizeChanger} pageSizeOptions={this.state.pageSizeOptions}
                          parentHandleShowPageChange={this.handleShowPageChange}
-                         tableName={this.tableName}/>
+                         tableName={this.tableName}/>*/}
       </Spin>
     );
   }

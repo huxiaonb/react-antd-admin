@@ -54,8 +54,12 @@ class Login extends React.PureComponent {
       hide();
       logger.debug('login validate return: result %o', res);
 
-      if (res.success) {
+      if (res.body.success) {
         message.success('登录成功');
+        const token = res.headers['access-token'];
+        if (token) {
+            sessionStorage.setItem('access_token', token);
+        }
         // 如果登录成功, 触发一个loginSuccess的action, payload就是登录后的用户名
         this.props.handleLoginSuccess(res.data);
       } else {
